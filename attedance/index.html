@@ -169,7 +169,7 @@
 
         <!-- Task Categories -->
         <div class="category">
-            <button class="category-toggle">Tasks</button>
+            <button class="category-toggle" id="toggleTasks">Tasks</button>
             <div class="tasks">
                 <ul id="taskList"></ul>
             </div>
@@ -184,9 +184,8 @@
         const taskList = document.getElementById('taskList');
         const completedCountElement = document.getElementById('completedCount');
         const totalCountElement = document.getElementById('totalCount');
+        const toggleTasksButton = document.getElementById('toggleTasks');
         const darkModeToggle = document.getElementById('darkMode');
-        const tasksContainer = document.querySelector('.tasks');
-        const categoryToggle = document.querySelector('.category-toggle');
 
         let completedCount = 0;
 
@@ -194,8 +193,8 @@
         function renderTasks() {
             taskList.innerHTML = ''; // Clear existing tasks
             const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            completedCount = tasks.filter(task => task.completed).length; // Update completed count
-            
+            completedCount = tasks.filter(task => task.completed).length; // Count completed tasks
+
             tasks.forEach((task, index) => {
                 const taskItem = document.createElement('li');
 
@@ -213,10 +212,22 @@
                 const taskDescription = document.createElement('span');
                 taskDescription.textContent = task.description;
 
-                // Append checkbox, priority dot, and description to task item
+                // Edit button
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => editTask(index));
+
+                // Delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteTask(index));
+
+                // Append checkbox, priority dot, description, edit and delete buttons to task item
                 taskItem.appendChild(checkbox);
                 taskItem.appendChild(priorityDot);
                 taskItem.appendChild(taskDescription);
+                taskItem.appendChild(editButton);
+                taskItem.appendChild(deleteButton);
 
                 // Append task item to task list
                 taskList.appendChild(taskItem);
@@ -231,9 +242,33 @@
             const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
             tasks[index].completed = isChecked;
 
-            // Update completed count
-            completedCount = isChecked ? completedCount + 1 : completedCount - 1;
+            if (isChecked) {
+                completedCount++;
+            } else {
+                completedCount--;
+            }
 
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Function to edit a task
+        function editTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const taskToEdit = tasks[index];
+            taskInput.value = taskToEdit.description;
+            prioritySelect.value = taskToEdit.priority;
+
+            // Remove the task from storage
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Function to delete a task
+        function deleteTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.splice(index, 1);
             localStorage.setItem('tasks', JSON.stringify(tasks));
             renderTasks();
         }
@@ -252,14 +287,15 @@
             }
         });
 
-        // Dark mode toggle
-        darkModeToggle.addEventListener('change', () => {
-            container.classList.toggle('dark-mode');
+        // Event listener to toggle task list visibility
+        toggleTasksButton.addEventListener('click', () => {
+            const tasksDiv = document.querySelector('.tasks');
+            tasksDiv.style.display = tasksDiv.style.display === 'none' ? 'block' : 'none';
         });
 
-        // Toggle tasks display
-        categoryToggle.addEventListener('click', () => {
-            tasksContainer.style.display = tasksContainer.style.display === 'none' ? 'block' : 'none';
+        // Dark mode toggle
+        darkModeToggle.addEventListener('change', () => {
+            container.classList.toggle('dark-mode', darkModeToggle.checked);
         });
 
         // Initialize task rendering
