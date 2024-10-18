@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Task Management</h1>
+        
+        <!-- Dark Mode Toggle -->
+        <div class="dark-mode-toggle">
+            <label for="darkMode">Dark Mode:</label>
+            <input type="checkbox" id="darkMode" />
+        </div>
+
+        <!-- Task Completion Counter -->
+        <div class="task-counter">
+            <p>Completed <span id="completedCount">0</span> out of <span id="totalCount">0</span> tasks</p>
+        </div>
+
+        <div class="category">
+            <button class="category-toggle">Work & Business</button>
+            <div class="tasks">
+                <h3>Client Communications</h3>
+                <ul>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-1" data-priority="high">
+                        <span class="priority-dot high-priority"></span> Respond to client emails and messages
+                    </li>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-2" data-priority="medium">
+                        <span class="priority-dot medium-priority"></span> Schedule meetings or follow-ups
+                    </li>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-3" data-priority="low">
+                        <span class="priority-dot low-priority"></span> Track client interactions in CRM
+                    </li>
+                </ul>
+
+                <h3>Coding Learning & Working</h3>
+                <ul>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-4" data-priority="medium">
+                        <span class="priority-dot medium-priority"></span> Practice coding challenges (1 hour daily)
+                    </li>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-5" data-priority="high">
+                        <span class="priority-dot high-priority"></span> Work on current project
+                    </li>
+                    <li>
+                        <input type="checkbox" class="task-checkbox" id="task-6" data-priority="low">
+                        <span class="priority-dot low-priority"></span> Review learning materials or courses
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- More categories and tasks -->
+        <div class="category">
+            <button class="category-toggle">Personal Development & Learning</button>
+            <div class="tasks">
+                <h3>English Speaking & Listening</h3>
+                <ul>
+                    <li><input type="checkbox" class="task-checkbox" id="task-7" data-priority="high"><span class="priority-dot high-priority"></span> Practice conversation (30 minutes daily)</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-8" data-priority="medium"><span class="priority-dot medium-priority"></span> Listen to English podcasts or audiobooks</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-9" data-priority="low"><span class="priority-dot low-priority"></span> Review new vocabulary</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="category">
+            <button class="category-toggle">Health & Wellness</button>
+            <div class="tasks">
+                <h3>Exercising</h3>
+                <ul>
+                    <li><input type="checkbox" class="task-checkbox" id="task-10" data-priority="high"><span class="priority-dot high-priority"></span> Create a daily exercise routine (30 minutes)</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-11" data-priority="medium"><span class="priority-dot medium-priority"></span> Mix cardio, strength training, and flexibility exercises</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-12" data-priority="low"><span class="priority-dot low-priority"></span> Track progress (weight, endurance)</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    background-color: #FDFCDC;
+    margin: 0;
+    padding: 20px;
+}
+
+.dark-mode {
+    background-color: #333;
+    color: white;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #0081A7;
+}
+
+.category {
+    margin-bottom: 20px;
+}
+
+.category-toggle {
+    width: 100%;
+    background-color: #00AFB9;
+    color: #FFF;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.category-toggle:hover {
+    background-color: #0081A7;
+}
+
+.tasks {
+    display: none;
+    padding: 10px;
+    background-color: #FED9B7;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+h3 {
+    color: #F07167;
+    margin-bottom: 10px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.completed-task {
+    text-decoration: line-through;
+    color: grey;
+}
+
+.priority-dot {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.high-priority {
+    background-color: red;
+}
+
+.medium-priority {
+    background-color: orange;
+}
+
+.low-priority {
+    background-color: green;
+}
+
+.task-counter {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.dark-mode-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.dark-mode .container {
+    background-color: #444;
+    color: white;
+}
+
+.dark-mode .category-toggle {
+    background-color: #555;
+}
+
+.dark-mode .tasks {
+    background-color: #666;
+}
+
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .category-toggle {
+        font-size: 16px;
+        padding: 8px;
+    }
+}
+
+</style>
+
+<script>
+    // Toggle task category visibility
+document.querySelectorAll('.category-toggle').forEach(button => {
+    button.addEventListener('click', () => {
+        const tasks = button.nextElementSibling;
+        tasks.style.display = tasks.style.display === 'block' ? 'none' : 'block';
+    });
+});
+
+// Load task completion status from local storage and update counter
+let completedCount = 0;
+const totalCount = document.querySelectorAll('.task-checkbox').length;
+document.getElementById('totalCount').textContent = totalCount;
+
+document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+    const taskId = checkbox.id;
+    const isChecked = localStorage.getItem(taskId) === 'true';
+    checkbox.checked = isChecked;
+    
+    if (isChecked) {
+        checkbox.parentElement.classList.add('completed-task');
+        completedCount++;
+    }
+
+    // Update task status and save in local storage
+    checkbox.addEventListener('change', event => {
+        const taskItem = event.target.parentElement;
+        const isChecked = event.target.checked;
+        
+        if (isChecked) {
+            taskItem.classList.add('completed-task');
+            localStorage.setItem(taskId, 'true');
+            completedCount++;
+        } else {
+            taskItem.classList.remove('completed-task');
+            localStorage.setItem(taskId, 'false');
+            completedCount--;
+        }
+
+        document.getElementById('completedCount').textContent = completedCount;
+    });
+});
+
+document.getElementById('completedCount').textContent = completedCount;
+
+// Dark mode toggle
+const darkModeToggle = document.getElementById('darkMode');
+darkModeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode');
+    
+    localStorage.setItem('darkMode', darkModeToggle.checked ? 'enabled' : 'disabled');
+});
+
+// Load dark mode setting from local storage
+if (localStorage.getItem('darkMode') === 'enabled') {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.checked = true;
+}
+
+</script>
