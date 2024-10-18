@@ -4,7 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Management</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FDFCDC;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFF;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0081A7;
+        }
+
+        .task-form {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .task-form input,
+        .task-form select {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .category {
+            margin-bottom: 20px;
+        }
+
+        .category-toggle {
+            width: 100%;
+            background-color: #00AFB9;
+            color: #FFF;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .category-toggle:hover {
+            background-color: #0081A7;
+        }
+
+        .tasks {
+            display: none;
+            padding: 10px;
+            background-color: #FED9B7;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .priority-dot {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .high-priority {
+            background-color: red;
+        }
+
+        .medium-priority {
+            background-color: orange;
+        }
+
+        .low-priority {
+            background-color: green;
+        }
+
+        .task-counter {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .dark-mode-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .dark-mode .container {
+            background-color: #444;
+            color: white;
+        }
+
+        .dark-mode .category-toggle {
+            background-color: #555;
+        }
+
+        .dark-mode .tasks {
+            background-color: #666;
+        }
+
+        @media screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .category-toggle {
+                font-size: 16px;
+                padding: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -21,214 +156,114 @@
             <p>Completed <span id="completedCount">0</span> out of <span id="totalCount">0</span> tasks</p>
         </div>
 
+        <!-- Task Form -->
+        <div class="task-form">
+            <input type="text" id="taskInput" placeholder="Enter task description" />
+            <select id="prioritySelect">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+            </select>
+            <button id="addTaskButton">Add Task</button>
+        </div>
+
         <!-- Task Categories -->
         <div class="category">
-            <button class="category-toggle">Career & Professional Development</button>
+            <button class="category-toggle">Tasks</button>
             <div class="tasks">
-                <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-1" data-priority="high"><span class="priority-dot high-priority"></span> Complete online certifications</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-2" data-priority="medium"><span class="priority-dot medium-priority"></span> Update LinkedIn profile</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-3" data-priority="low"><span class="priority-dot low-priority"></span> Network with professionals</li>
-                </ul>
+                <ul id="taskList"></ul>
             </div>
         </div>
-
-        <div class="category">
-            <button class="category-toggle">Fitness & Wellness</button>
-            <div class="tasks">
-                <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-4" data-priority="high"><span class="priority-dot high-priority"></span> Morning workout routine</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-5" data-priority="medium"><span class="priority-dot medium-priority"></span> Track water intake</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-6" data-priority="low"><span class="priority-dot low-priority"></span> Practice meditation</li>
-                </ul>
-            </div>
-        </div>
-
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
-<style>
-    body {
-    font-family: Arial, sans-serif;
-    background-color: #FDFCDC;
-    margin: 0;
-    padding: 20px;
-}
+    <script>
+        const container = document.querySelector('.container');
+        const taskInput = document.getElementById('taskInput');
+        const prioritySelect = document.getElementById('prioritySelect');
+        const addTaskButton = document.getElementById('addTaskButton');
+        const taskList = document.getElementById('taskList');
+        const completedCountElement = document.getElementById('completedCount');
+        const totalCountElement = document.getElementById('totalCount');
+        const darkModeToggle = document.getElementById('darkMode');
+        const tasksContainer = document.querySelector('.tasks');
+        const categoryToggle = document.querySelector('.category-toggle');
 
-.dark-mode {
-    background-color: #333;
-    color: white;
-}
+        let completedCount = 0;
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #FFF;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+        // Function to render tasks
+        function renderTasks() {
+            taskList.innerHTML = ''; // Clear existing tasks
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            completedCount = tasks.filter(task => task.completed).length; // Update completed count
+            
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('li');
 
-h1 {
-    text-align: center;
-    color: #0081A7;
-}
+                // Create checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', () => handleTaskCompletion(index, checkbox.checked));
 
-.category {
-    margin-bottom: 20px;
-}
+                // Priority dot
+                const priorityDot = document.createElement('span');
+                priorityDot.classList.add('priority-dot', `${task.priority}-priority`);
 
-.category-toggle {
-    width: 100%;
-    background-color: #00AFB9;
-    color: #FFF;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 18px;
-}
+                // Task description
+                const taskDescription = document.createElement('span');
+                taskDescription.textContent = task.description;
 
-.category-toggle:hover {
-    background-color: #0081A7;
-}
+                // Append checkbox, priority dot, and description to task item
+                taskItem.appendChild(checkbox);
+                taskItem.appendChild(priorityDot);
+                taskItem.appendChild(taskDescription);
 
-.tasks {
-    display: none;
-    padding: 10px;
-    background-color: #FED9B7;
-    border-radius: 4px;
-    margin-top: 10px;
-}
+                // Append task item to task list
+                taskList.appendChild(taskItem);
+            });
 
-ul {
-    list-style-type: none;
-    padding-left: 20px;
-}
-
-li {
-    margin-bottom: 10px;
-}
-
-.priority-dot {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-
-.high-priority {
-    background-color: red;
-}
-
-.medium-priority {
-    background-color: orange;
-}
-
-.low-priority {
-    background-color: green;
-}
-
-.task-counter {
-    text-align: center;
-    margin: 20px 0;
-}
-
-.dark-mode-toggle {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 20px;
-}
-
-.dark-mode .container {
-    background-color: #444;
-    color: white;
-}
-
-.dark-mode .category-toggle {
-    background-color: #555;
-}
-
-.dark-mode .tasks {
-    background-color: #666;
-}
-
-@media screen and (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    .category-toggle {
-        font-size: 16px;
-        padding: 8px;
-    }
-}
-
-</style>
-<script>
-    // Toggle task category visibility
-document.querySelectorAll('.category-toggle').forEach(button => {
-    button.addEventListener('click', () => {
-        const tasks = button.nextElementSibling;
-        tasks.style.display = tasks.style.display === 'block' ? 'none' : 'block';
-    });
-});
-
-// Load task completion status from local storage and update counter
-let completedCount = 0;
-const totalCount = document.querySelectorAll('.task-checkbox').length;
-document.getElementById('totalCount').textContent = totalCount;
-
-document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-    const taskId = checkbox.id;
-    const isChecked = localStorage.getItem(taskId) === 'true';
-    checkbox.checked = isChecked;
-    
-    if (isChecked) {
-        checkbox.parentElement.classList.add('completed-task');
-        completedCount++;
-    }
-
-    // Update task status and save in local storage
-    checkbox.addEventListener('change', event => {
-        const taskItem = event.target.parentElement;
-        const isChecked = event.target.checked;
-        
-        if (isChecked) {
-            taskItem.classList.add('completed-task');
-            localStorage.setItem(taskId, 'true');
-            completedCount++;
-        } else {
-            taskItem.classList.remove('completed-task');
-            localStorage.setItem(taskId, 'false');
-            completedCount--;
+            totalCountElement.textContent = tasks.length;
+            completedCountElement.textContent = completedCount;
         }
 
-        document.getElementById('completedCount').textContent = completedCount;
-    });
-});
+        // Function to handle task completion
+        function handleTaskCompletion(index, isChecked) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks[index].completed = isChecked;
 
-document.getElementById('completedCount').textContent = completedCount;
+            // Update completed count
+            completedCount = isChecked ? completedCount + 1 : completedCount - 1;
 
-// Dark mode toggle
-const darkModeToggle = document.getElementById('darkMode');
-darkModeToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark-mode');
-    
-    localStorage.setItem('darkMode', darkModeToggle.checked ? 'enabled' : 'disabled');
-});
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
 
-// Load dark mode setting from local storage
-if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    darkModeToggle.checked = true;
-}
+        // Event listener to add tasks
+        addTaskButton.addEventListener('click', () => {
+            const taskDescription = taskInput.value.trim();
+            const taskPriority = prioritySelect.value;
 
-</script>
+            if (taskDescription) {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                tasks.push({ description: taskDescription, priority: taskPriority, completed: false });
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                taskInput.value = ''; // Clear input
+                renderTasks();
+            }
+        });
+
+        // Dark mode toggle
+        darkModeToggle.addEventListener('change', () => {
+            container.classList.toggle('dark-mode');
+        });
+
+        // Toggle tasks display
+        categoryToggle.addEventListener('click', () => {
+            tasksContainer.style.display = tasksContainer.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Initialize task rendering
+        renderTasks();
+    </script>
+</body>
+</html>
