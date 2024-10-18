@@ -21,64 +21,25 @@
             <p>Completed <span id="completedCount">0</span> out of <span id="totalCount">0</span> tasks</p>
         </div>
 
+        <!-- Task Categories -->
         <div class="category">
-            <button class="category-toggle">Work & Business</button>
+            <button class="category-toggle">Career & Professional Development</button>
             <div class="tasks">
-                <h3>Client Communications</h3>
                 <ul>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-1" data-priority="high">
-                        <span class="priority-dot high-priority"></span> Respond to client emails and messages
-                    </li>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-2" data-priority="medium">
-                        <span class="priority-dot medium-priority"></span> Schedule meetings or follow-ups
-                    </li>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-3" data-priority="low">
-                        <span class="priority-dot low-priority"></span> Track client interactions in CRM
-                    </li>
-                </ul>
-
-                <h3>Coding Learning & Working</h3>
-                <ul>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-4" data-priority="medium">
-                        <span class="priority-dot medium-priority"></span> Practice coding challenges (1 hour daily)
-                    </li>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-5" data-priority="high">
-                        <span class="priority-dot high-priority"></span> Work on current project
-                    </li>
-                    <li>
-                        <input type="checkbox" class="task-checkbox" id="task-6" data-priority="low">
-                        <span class="priority-dot low-priority"></span> Review learning materials or courses
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- More categories and tasks -->
-        <div class="category">
-            <button class="category-toggle">Personal Development & Learning</button>
-            <div class="tasks">
-                <h3>English Speaking & Listening</h3>
-                <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-7" data-priority="high"><span class="priority-dot high-priority"></span> Practice conversation (30 minutes daily)</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-8" data-priority="medium"><span class="priority-dot medium-priority"></span> Listen to English podcasts or audiobooks</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-9" data-priority="low"><span class="priority-dot low-priority"></span> Review new vocabulary</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-1" data-priority="high"><span class="priority-dot high-priority"></span> Complete online certifications</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-2" data-priority="medium"><span class="priority-dot medium-priority"></span> Update LinkedIn profile</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-3" data-priority="low"><span class="priority-dot low-priority"></span> Network with professionals</li>
                 </ul>
             </div>
         </div>
 
         <div class="category">
-            <button class="category-toggle">Health & Wellness</button>
+            <button class="category-toggle">Fitness & Wellness</button>
             <div class="tasks">
-                <h3>Exercising</h3>
                 <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-10" data-priority="high"><span class="priority-dot high-priority"></span> Create a daily exercise routine (30 minutes)</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-11" data-priority="medium"><span class="priority-dot medium-priority"></span> Mix cardio, strength training, and flexibility exercises</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-12" data-priority="low"><span class="priority-dot low-priority"></span> Track progress (weight, endurance)</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-4" data-priority="high"><span class="priority-dot high-priority"></span> Morning workout routine</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-5" data-priority="medium"><span class="priority-dot medium-priority"></span> Track water intake</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-6" data-priority="low"><span class="priority-dot low-priority"></span> Practice meditation</li>
                 </ul>
             </div>
         </div>
@@ -151,20 +112,6 @@ li {
     margin-bottom: 10px;
 }
 
-h3 {
-    color: #F07167;
-    margin-bottom: 10px;
-}
-
-input[type="checkbox"] {
-    margin-right: 10px;
-}
-
-.completed-task {
-    text-decoration: line-through;
-    color: grey;
-}
-
 .priority-dot {
     width: 10px;
     height: 10px;
@@ -225,7 +172,6 @@ input[type="checkbox"] {
 }
 
 </style>
-
 <script>
     // Toggle task category visibility
 document.querySelectorAll('.category-toggle').forEach(button => {
