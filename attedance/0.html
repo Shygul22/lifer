@@ -10,21 +10,24 @@
     <div class="container">
         <h1>Task Management</h1>
 
+        <!-- Task Counter -->
+        <p id="task-counter">Completed 0 out of 12 tasks.</p>
+
         <div class="category">
             <button class="category-toggle">Work & Business</button>
             <div class="tasks">
                 <h3>Client Communications</h3>
                 <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-1"> Respond to client emails and messages</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-2"> Schedule meetings or follow-ups</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-3"> Track client interactions in CRM</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-1"> Respond to client emails and messages <span class="priority high">●●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-2"> Schedule meetings or follow-ups <span class="priority medium">●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-3"> Track client interactions in CRM <span class="priority low">●</span></li>
                 </ul>
 
                 <h3>Coding Learning & Working</h3>
                 <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-4"> Practice coding challenges (1 hour daily)</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-5"> Work on current project</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-6"> Review learning materials or courses</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-4"> Practice coding challenges (1 hour daily) <span class="priority high">●●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-5"> Work on current project <span class="priority high">●●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-6"> Review learning materials or courses <span class="priority medium">●●</span></li>
                 </ul>
             </div>
         </div>
@@ -34,9 +37,9 @@
             <div class="tasks">
                 <h3>English Speaking & Listening</h3>
                 <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-7"> Practice conversation (30 minutes daily)</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-8"> Listen to English podcasts or audiobooks</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-9"> Review new vocabulary</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-7"> Practice conversation (30 minutes daily) <span class="priority medium">●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-8"> Listen to English podcasts or audiobooks <span class="priority low">●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-9"> Review new vocabulary <span class="priority low">●</span></li>
                 </ul>
             </div>
         </div>
@@ -46,14 +49,15 @@
             <div class="tasks">
                 <h3>Exercising</h3>
                 <ul>
-                    <li><input type="checkbox" class="task-checkbox" id="task-10"> Create a daily exercise routine (30 minutes)</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-11"> Mix cardio, strength training, and flexibility exercises</li>
-                    <li><input type="checkbox" class="task-checkbox" id="task-12"> Track progress (weight, endurance)</li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-10"> Create a daily exercise routine (30 minutes) <span class="priority high">●●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-11"> Mix cardio, strength training, and flexibility exercises <span class="priority medium">●●</span></li>
+                    <li><input type="checkbox" class="task-checkbox" id="task-12"> Track progress (weight, endurance) <span class="priority low">●</span></li>
                 </ul>
             </div>
         </div>
 
-        <!-- Add more categories and tasks similarly -->
+        <!-- Dark Mode Toggle -->
+        <button id="toggle-dark-mode">Toggle Dark Mode</button>
     </div>
 
     <script src="script.js"></script>
@@ -95,6 +99,7 @@
         border-radius: 4px;
         cursor: pointer;
         font-size: 18px;
+        transition: background-color 0.3s;
     }
 
     .category-toggle:hover {
@@ -131,9 +136,63 @@
         text-decoration: line-through;
         color: grey;
     }
+
+    .priority {
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .priority.high {
+        color: #F07167;
+    }
+
+    .priority.medium {
+        color: #FED9B7;
+    }
+
+    .priority.low {
+        color: #00AFB9;
+    }
+
+    #task-counter {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #00AFB9;
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+        background-color: #333;
+        color: #FFF;
+    }
+
+    .container.dark-mode {
+        background-color: #444;
+    }
+
+    .category-toggle.dark-mode {
+        background-color: #555;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 600px) {
+        .container {
+            padding: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .category-toggle {
+            font-size: 16px;
+        }
+    }
 </style>
 
 <script>
+    // Toggle category tasks visibility
     document.querySelectorAll('.category-toggle').forEach(button => {
         button.addEventListener('click', () => {
             const tasks = button.nextElementSibling;
@@ -141,27 +200,47 @@
         });
     });
 
-    // Load task completion status from local storage
-    document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-        const taskId = checkbox.id;
-        const isChecked = localStorage.getItem(taskId) === 'true';
-        checkbox.checked = isChecked;
-        if (isChecked) {
-            checkbox.parentElement.classList.add('completed-task');
-        }
-
-        // Update task status on change and store in local storage
-        checkbox.addEventListener('change', (event) => {
-            const taskItem = event.target.parentElement;
-            const isChecked = event.target.checked;
-
+    // Load task completion status from local storage and set initial state
+    function loadTaskStatus() {
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            const taskId = checkbox.id;
+            const isChecked = localStorage.getItem(taskId) === 'true';
+            checkbox.checked = isChecked;
             if (isChecked) {
-                taskItem.classList.add('completed-task');
-                localStorage.setItem(taskId, 'true');
-            } else {
-                taskItem.classList.remove('completed-task');
-                localStorage.setItem(taskId, 'false');
+                checkbox.parentElement.classList.add('completed-task');
             }
+
+            // Update task status on change and store in local storage
+            checkbox.addEventListener('change', (event) => {
+                const taskItem = event.target.parentElement;
+                const isChecked = event.target.checked;
+
+                if (isChecked) {
+                    taskItem.classList.add('completed-task');
+                    localStorage.setItem(taskId, 'true');
+                } else {
+                    taskItem.classList.remove('completed-task');
+                    localStorage.setItem(taskId, 'false');
+                }
+
+                updateTaskCounter(); // Update the task counter after any change
+            });
         });
+    }
+
+    // Task counter function to update task completion stats
+    function updateTaskCounter() {
+        const totalTasks = document.querySelectorAll('.task-checkbox').length;
+        const completedTasks = document.querySelectorAll('.task-checkbox:checked').length;
+        document.getElementById('task-counter').textContent = `Completed ${completedTasks} out of ${totalTasks} tasks.`;
+    }
+
+    // Toggle dark mode
+    document.getElementById('toggle-dark-mode').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
     });
+
+    // Initialize the page with loaded task status and updated counter
+    loadTaskStatus();
+    updateTaskCounter();
 </script>
