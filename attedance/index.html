@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,16 +34,20 @@
 
         .task-form {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             margin-bottom: 20px;
         }
 
         .task-form input,
-        .task-form select {
+        .task-form select,
+        .task-form textarea {
             padding: 10px;
             margin-right: 10px;
+            margin-bottom: 10px;
             border-radius: 4px;
             border: 1px solid #ccc;
+            flex: 1;
         }
 
         .category {
@@ -125,6 +130,11 @@
             background-color: #666;
         }
 
+        .error {
+            color: red;
+            text-align: center;
+        }
+
         @media screen and (max-width: 600px) {
             body {
                 padding: 10px;
@@ -141,38 +151,83 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Task Management</h1>
-        
+
         <!-- Dark Mode Toggle -->
         <div class="dark-mode-toggle">
             <label for="darkMode">Dark Mode:</label>
             <input type="checkbox" id="darkMode" />
         </div>
 
+        <!-- Error message -->
+        <div id="errorMsg" class="error"></div>
+
         <!-- Task Completion Counter -->
         <div class="task-counter">
             <p>Completed <span id="completedCount">0</span> out of <span id="totalCount">0</span> tasks</p>
+            <progress id="taskProgress" value="0" max="100"></progress>
         </div>
 
         <!-- Task Form -->
         <div class="task-form">
-            <input type="text" id="taskInput" placeholder="Enter task description" />
+            <input type="text" id="taskInput" placeholder="Enter task description" required />
             <select id="prioritySelect">
                 <option value="low">Low Priority</option>
                 <option value="medium">Medium Priority</option>
                 <option value="high">High Priority</option>
             </select>
+            <input type="date" id="dueDateInput" />
+            <input type="text" id="categoryInput" placeholder="Enter category" />
+            <textarea id="taskNotes" placeholder="Add notes (optional)"></textarea>
+            <label>
+                <input type="checkbox" id="recurringTask" /> Set as recurring
+            </label>
             <button id="addTaskButton">Add Task</button>
+        </div>
+
+        <!-- Task Sorting -->
+        <div class="task-form">
+            <label for="sortTasks">Sort Tasks: </label>
+            <select id="sortTasks">
+                <option value="priority">Sort by Priority</option>
+                <option value="dueDate">Sort by Due Date</option>
+                <option value="completion">Sort by Completion</option>
+            </select>
+        </div>
+
+        <!-- Task Search -->
+        <div class="task-form">
+            <input type="text" id="searchInput" placeholder="Search tasks" />
         </div>
 
         <!-- Task Categories -->
         <div class="category">
-            <button class="category-toggle" id="toggleTasks">Tasks</button>
+            <button class="category-toggle" id="toggleTasks">Show Tasks</button>
             <div class="tasks">
                 <ul id="taskList"></ul>
             </div>
+        </div>
+
+        <!-- Task History Section -->
+        <div class="category">
+            <button class="category-toggle" id="toggleHistory">Show Task History</button>
+            <div class="tasks" id="taskHistory" style="display:none;">
+                <ul></ul>
+            </div>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="task-form">
+            <label for="priorityFilter">Filter by Priority: </label>
+            <select id="priorityFilter">
+                <option value="all">All</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
         </div>
     </div>
 
@@ -180,23 +235,33 @@
         const container = document.querySelector('.container');
         const taskInput = document.getElementById('taskInput');
         const prioritySelect = document.getElementById('prioritySelect');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const categoryInput = document.getElementById('categoryInput');
+        const taskNotes = document.getElementById('taskNotes');
         const addTaskButton = document.getElementById('addTaskButton');
         const taskList = document.getElementById('taskList');
         const completedCountElement = document.getElementById('completedCount');
         const totalCountElement = document.getElementById('totalCount');
         const toggleTasksButton = document.getElementById('toggleTasks');
         const darkModeToggle = document.getElementById('darkMode');
+        const sortTasks = document.getElementById('sortTasks');
+        const searchInput = document.getElementById('searchInput');
+        const taskHistoryElement = document.getElementById('taskHistory').querySelector('ul');
+        const priorityFilter = document.getElementById('priorityFilter');
+        const errorMsg = document.getElementById('errorMsg');
 
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         let completedCount = 0;
 
         // Function to render tasks
-        function renderTasks() {
+        function renderTasks(filteredTasks = tasks) {
             taskList.innerHTML = ''; // Clear existing tasks
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            completedCount = tasks.filter(task => task.completed).length; // Count completed tasks
+            completedCount = filteredTasks.filter(task => task.completed).length; // Count completed tasks
 
-            tasks.forEach((task, index) => {
+            filteredTasks.forEach((task, index) => {
                 const taskItem = document.createElement('li');
+                taskItem.setAttribute('draggable', 'true');
+                taskItem.setAttribute('id', `task-${index}`);
 
                 // Create checkbox
                 const checkbox = document.createElement('input');
@@ -210,7 +275,16 @@
 
                 // Task description
                 const taskDescription = document.createElement('span');
-                taskDescription.textContent = task.description;
+                taskDescription.textContent = `[${task.category}] ${task.description}`;
+
+                // Due date
+                const dueDate = document.createElement('span');
+                const taskDueDate = new Date(task.dueDate);
+                dueDate.textContent = ` (Due: ${taskDueDate.toDateString()})`;
+
+                // Notes
+                const notes = document.createElement('p');
+                notes.textContent = `Notes: ${task.notes}`;
 
                 // Edit button
                 const editButton = document.createElement('button');
@@ -222,84 +296,144 @@
                 deleteButton.textContent = 'Delete';
                 deleteButton.addEventListener('click', () => deleteTask(index));
 
-                // Append checkbox, priority dot, description, edit and delete buttons to task item
+                // Append elements
                 taskItem.appendChild(checkbox);
                 taskItem.appendChild(priorityDot);
                 taskItem.appendChild(taskDescription);
+                taskItem.appendChild(dueDate);
+                taskItem.appendChild(notes);
                 taskItem.appendChild(editButton);
                 taskItem.appendChild(deleteButton);
 
-                // Append task item to task list
                 taskList.appendChild(taskItem);
             });
 
-            totalCountElement.textContent = tasks.length;
+            updateTaskCounter();
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Update task completion count and progress
+        function updateTaskCounter() {
+            const totalCount = tasks.length;
             completedCountElement.textContent = completedCount;
+            totalCountElement.textContent = totalCount;
+            const progressValue = totalCount ? (completedCount / totalCount) * 100 : 0;
+            document.getElementById('taskProgress').value = progressValue;
         }
 
-        // Function to handle task completion
-        function handleTaskCompletion(index, isChecked) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            tasks[index].completed = isChecked;
-
-            if (isChecked) {
-                completedCount++;
-            } else {
-                completedCount--;
-            }
-
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // Function to edit a task
-        function editTask(index) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            const taskToEdit = tasks[index];
-            taskInput.value = taskToEdit.description;
-            prioritySelect.value = taskToEdit.priority;
-
-            // Remove the task from storage
-            tasks.splice(index, 1);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // Function to delete a task
-        function deleteTask(index) {
-            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            tasks.splice(index, 1);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // Event listener to add tasks
-        addTaskButton.addEventListener('click', () => {
+        // Add task to the list
+        function addTask() {
             const taskDescription = taskInput.value.trim();
-            const taskPriority = prioritySelect.value;
+            const dueDate = dueDateInput.value;
+            const priority = prioritySelect.value;
+            const category = categoryInput.value.trim();
+            const notes = taskNotes.value.trim();
 
-            if (taskDescription) {
-                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-                tasks.push({ description: taskDescription, priority: taskPriority, completed: false });
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                taskInput.value = ''; // Clear input
-                renderTasks();
+            // Validation
+            if (!taskDescription || !dueDate || !category) {
+                errorMsg.textContent = 'Please fill out all required fields (description, due date, category).';
+                return;
             }
-        });
 
-        // Event listener to toggle task list visibility
+            const newTask = {
+                description: taskDescription,
+                dueDate,
+                priority,
+                category,
+                notes,
+                completed: false,
+            };
+
+            tasks.push(newTask);
+            taskInput.value = '';
+            dueDateInput.value = '';
+            categoryInput.value = '';
+            taskNotes.value = '';
+            errorMsg.textContent = ''; // Clear error message
+
+            renderTasks();
+        }
+
+        // Handle task completion
+        function handleTaskCompletion(index, completed) {
+            tasks[index].completed = completed;
+            renderTasks();
+        }
+
+        // Delete a task
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        // Edit a task
+        function editTask(index) {
+            const task = tasks[index];
+            taskInput.value = task.description;
+            dueDateInput.value = task.dueDate;
+            categoryInput.value = task.category;
+            taskNotes.value = task.notes;
+            tasks.splice(index, 1);
+        }
+
+        // Toggle task visibility
         toggleTasksButton.addEventListener('click', () => {
-            const tasksDiv = document.querySelector('.tasks');
-            tasksDiv.style.display = tasksDiv.style.display === 'none' ? 'block' : 'none';
+            const tasksSection = document.querySelector('.tasks');
+            tasksSection.style.display = tasksSection.style.display === 'none' ? 'block' : 'none';
         });
 
-        // Dark mode toggle
+        // Sort tasks
+        sortTasks.addEventListener('change', () => {
+            if (sortTasks.value === 'priority') {
+                tasks.sort((a, b) => {
+                    const priorities = { low: 1, medium: 2, high: 3 };
+                    return priorities[b.priority] - priorities[a.priority];
+                });
+            } else if (sortTasks.value === 'dueDate') {
+                tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            }
+            renderTasks();
+        });
+
+        // Search tasks
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredTasks = tasks.filter(task =>
+                task.description.toLowerCase().includes(searchTerm)
+            );
+            renderTasks(filteredTasks);
+        });
+
+        // Filter tasks by priority
+        priorityFilter.addEventListener('change', () => {
+            const priority = priorityFilter.value;
+            const filteredTasks = priority === 'all' ? tasks : tasks.filter(task => task.priority === priority);
+            renderTasks(filteredTasks);
+        });
+
+        // Add task button click
+        addTaskButton.addEventListener('click', addTask);
+
+        // Dark Mode Toggle
         darkModeToggle.addEventListener('change', () => {
-            container.classList.toggle('dark-mode', darkModeToggle.checked);
+            container.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', darkModeToggle.checked ? 'enabled' : 'disabled');
         });
 
-        // Initialize task rendering
-        renderTasks();
+        // Load dark mode state
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                darkModeToggle.checked = true;
+                container.classList.add('dark-mode');
+            }
+            renderTasks();
+        });
+
+        // Save tasks on page unload
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        });
     </script>
 </body>
+
 </html>
