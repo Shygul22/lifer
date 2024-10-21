@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Task Manager</title>
+</head>
+<body>
+    <h1>Task Manager</h1>
+
+    <div id="task-form">
+      <form id="add-task-form">
+        <label for="title">Task Title:</label>
+        <input type="text" id="title" required>
+  
+        <label for="urgency">Urgent:</label>
+        <input type="checkbox" id="urgency">
+  
+        <label for="importance">Important:</label>
+        <input type="checkbox" id="importance">
+  
+        <label for="estimatedTime">Estimated Time (minutes):</label>
+        <input type="number" id="estimatedTime" min="1" required>
+  
+        <button type="submit">Add Task</button>
+      </form>
+    </div>
+  
+    <div id="tasks-output"></div>
+
+  <script src="index.js"></script>
+</body>
+</html>
