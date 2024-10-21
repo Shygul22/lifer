@@ -1,228 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>24-hour Task Manager</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            width: 50%;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #0081A7;
-        }
-
-        #task-list ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #task-list li {
-            background: #00AFB9;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 5px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            cursor: move;
-        }
-
-        #task-list li.urgent {
-            background-color: #F07167;
-        }
-
-        #task-list li.important {
-            background-color: #FED9B7;
-        }
-
-        #add-task-btn {
-            background-color: #F07167;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #add-task-btn:hover {
-            background-color: #FDFCDC;
-            color: #F07167;
-        }
-
-        /* Mobile responsiveness */
-        @media only screen and (max-width: 768px) {
-            .container {
-                width: 100%;
-                padding: 15px;
-            }
-
-            #add-task-btn {
-                width: 100%;
-                margin-top: 15px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
 </head>
 <body>
-    <div class="container">
-        <h1>24-Hour Task Manager</h1>
-        <div id="task-list">
-            <ul id="tasks" draggable="true">
-                <!-- Tasks will be added dynamically here -->
-            </ul>
-        </div>
-        <button id="add-task-btn">Add Task</button>
-    </div>
-    <script src="script.js"></script>
+  <h1>Task Manager</h1>
+
+  <div id="task-form">
+    <form id="add-task-form">
+      <label for="title">Task Title:</label>
+      <input type="text" id="title" required>
+
+      <label for="urgency">Urgent:</label>
+      <input type="checkbox" id="urgency">
+
+      <label for="importance">Important:</label>
+      <input type="checkbox" id="importance">
+
+      <label for="estimatedTime">Estimated Time (minutes):</label>
+      <input type="number" id="estimatedTime" min="1" required>
+
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+
+  <div id="tasks-output"></div>
+
+
+
+<style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f4f4f9;
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+}
+
+#task-form {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#task-form label {
+  margin-right: 10px;
+}
+
+#task-form input {
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#tasks-output {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.task-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+strong {
+  color: #007BFF;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+
+  #task-form {
+    width: 100%;
+    padding: 10px;
+  }
+
+  #tasks-output {
+    padding: 10px;
+  }
+
+  .task-item {
+    padding: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  button {
+    padding: 6px 10px;
+  }
+
+  #tasks-output {
+    padding: 5px;
+  }
+}
+
+</style>
+ 
+  <script>
+    // Function to save tasks to localStorage
+    function saveTasksToLocalStorage(tasks) {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Function to retrieve tasks from localStorage
+    function getTasksFromLocalStorage() {
+      const tasks = localStorage.getItem('tasks');
+      return tasks ? JSON.parse(tasks) : [];
+    }
+
+    // Function to render tasks in the output div
+    function renderTasks() {
+      const tasksOutput = document.getElementById('tasks-output');
+      tasksOutput.innerHTML = '';
+      const tasks = getTasksFromLocalStorage();
+
+      tasks.forEach((task, index) => {
+        const taskItem = document.createElement('div');
+        taskItem.classList.add('task-item');
+        taskItem.innerHTML = `
+          <strong>Title:</strong> ${task.title} <br>
+          <strong>Urgent:</strong> ${task.urgent ? 'Yes' : 'No'} <br>
+          <strong>Important:</strong> ${task.important ? 'Yes' : 'No'} <br>
+          <strong>Estimated Time:</strong> ${task.estimatedTime} minutes <br>
+        `;
+        tasksOutput.appendChild(taskItem);
+      });
+    }
+
+    // Handle form submission to add a task
+    document.getElementById('add-task-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const urgency = document.getElementById('urgency').checked;
+      const importance = document.getElementById('importance').checked;
+      const estimatedTime = document.getElementById('estimatedTime').value;
+
+      const tasks = getTasksFromLocalStorage();
+      tasks.push({ title, urgency, importance, estimatedTime });
+      saveTasksToLocalStorage(tasks);
+      renderTasks();
+
+      // Clear the form
+      this.reset();
+    });
+
+    // Load tasks when the page loads
+    window.onload = function() {
+      renderTasks();
+    };
+  </script>
+
 </body>
 </html>
-<script>
-    let tasks = [];
-let taskHistory = [];
-
-// Task Auto Categorization by Name
-const categorizeTask = (task) => {
-    if (task.name.toLowerCase().includes("urgent")) {
-        return "Urgent";
-    } else if (task.name.toLowerCase().includes("important")) {
-        return "Important";
-    }
-    return "Other";
-};
-
-// Productivity Algorithm to Split Time and Apply Techniques
-const applyTechniques = () => {
-    tasks.forEach((task, index) => {
-        task.timeBlock = (24 / tasks.length).toFixed(2) + " hours";
-        task.pomodoro = `25 min work, 5 min break`;
-
-        if (task.priority === "Urgent") {
-            task.order = 1;
-        } else {
-            task.order = 2;
-        }
-    });
-    tasks.sort((a, b) => a.order - b.order);
-};
-
-// Add Task Function
-const addTask = () => {
-    const taskName = prompt("Enter Task Name:");
-    if (!taskName) return;
-
-    const category = categorizeTask({ name: taskName });
-    const task = {
-        name: taskName,
-        category,
-        priority: category === "Urgent" ? "Urgent" : "Normal",
-        completed: false,
-        recurring: confirm("Is this task recurring?")
-    };
-
-    tasks.push(task);
-    applyTechniques();
-    displayTasks();
-};
-
-// Display Tasks
-const displayTasks = () => {
-    const taskList = document.getElementById('tasks');
-    taskList.innerHTML = '';
-
-    tasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${task.name} - ${task.category} - Time Block: ${task.timeBlock} - Pomodoro: ${task.pomodoro}`;
-        li.classList.add(task.category.toLowerCase());
-
-        // Drag and Drop attributes
-        li.setAttribute('draggable', 'true');
-        li.setAttribute('data-index', index);
-
-        // Task completion
-        const completeButton = document.createElement('button');
-        completeButton.textContent = 'Complete';
-        completeButton.onclick = () => markTaskComplete(task);
-
-        li.appendChild(completeButton);
-        taskList.appendChild(li);
-    });
-
-    addDragAndDrop();
-};
-
-// Drag-and-Drop Task Reordering
-const addDragAndDrop = () => {
-    const taskListItems = document.querySelectorAll('#tasks li');
-
-    taskListItems.forEach(item => {
-        item.addEventListener('dragstart', dragStart);
-        item.addEventListener('dragover', dragOver);
-        item.addEventListener('drop', drop);
-    });
-};
-
-const dragStart = (e) => {
-    e.dataTransfer.setData('text/plain', e.target.dataset.index);
-};
-
-const dragOver = (e) => {
-    e.preventDefault();
-};
-
-const drop = (e) => {
-    const draggedIndex = e.dataTransfer.getData('text');
-    const droppedIndex = e.target.dataset.index;
-
-    // Swap tasks
-    const draggedTask = tasks[draggedIndex];
-    tasks[draggedIndex] = tasks[droppedIndex];
-    tasks[droppedIndex] = draggedTask;
-
-    displayTasks();
-};
-
-// Mark Task as Complete
-const markTaskComplete = (task) => {
-    task.completed = true;
-    taskHistory.push(task);
-    tasks = tasks.filter(t => t !== task);
-
-    // Move recurring tasks to the next day
-    if (task.recurring) {
-        tasks.push({ ...task, completed: false });
-    }
-
-    displayTasks();
-};
-
-// Add Task Button Event Listener
-document.getElementById('add-task-btn').addEventListener('click', addTask);
-
-// Notifications (every 1 hour if tasks are incomplete)
-const notifyUser = () => {
-    if (Notification.permission === 'granted') {
-        const incompleteTasks = tasks.filter(task => !task.completed);
-        if (incompleteTasks.length > 0) {
-            new Notification(`You have ${incompleteTasks.length} incomplete tasks remaining!`);
-        }
-    } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission();
-    }
-};
-
-setInterval(notifyUser, 3600000); // 1 hour notifications
-
-</script>
